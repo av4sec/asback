@@ -8,6 +8,15 @@ create table role (
   name text not null
 );
 
+insert into role (extid, charid, name)
+values (10, 'role_10', 'Role 10');
+
+insert into role (extid, charid, name)
+values (11, 'role_11', 'Role 11');
+
+insert into role (extid, charid, name)
+values (12, 'role_12', 'Role 12');
+
 -- ACCESS CODE --------------------------------------------
 drop table if exists acode;
 
