@@ -15,7 +15,7 @@ db = get_db(app)
 logger = logging.getLogger(__name__)
 
 
-@app.route('/api/roles', methods=['GET'])
+@app.route('/api/role', methods=['GET'])
 def get_roles():
     db.row_factory = dict_factory
     cur = db.execute('select * from role order by id')
@@ -23,7 +23,7 @@ def get_roles():
     return jsonify(roles)
 
 
-@app.route('/api/roles/<int:role_id>', methods=['GET'])
+@app.route('/api/role/<int:role_id>', methods=['GET'])
 def get_role(role_id):
     db.row_factory = dict_factory
     cur = db.execute('select * from role where id = :role_id', {'role_id': role_id})
@@ -39,7 +39,7 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-@app.route('/api/roles', methods=['POST'])
+@app.route('/api/role', methods=['POST'])
 def create_role():
     if not request.json or not 'extid' in request.json or not 'charid' in request.json:
         abort(400)
@@ -56,7 +56,7 @@ def create_role():
     return jsonify(role), 201
 
 
-@app.route('/api/roles/<int:role_id>', methods=['PUT'])
+@app.route('/api/role/<int:role_id>', methods=['PUT'])
 def update_role(role_id):
     if not request.json:
         abort(400)
@@ -80,7 +80,7 @@ def update_role(role_id):
     return jsonify(role)
 
 
-@app.route('/api/roles/<int:role_id>', methods=['DELETE'])
+@app.route('/api/role/<int:role_id>', methods=['DELETE'])
 def delete_role(role_id):
     cur = db.execute('delete from role where id = :role_id', {'role_id': role_id})
     db.commit()
