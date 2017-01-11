@@ -7,8 +7,9 @@
 
 ### test
 
-* curl http://localhost:8080/api/role
-* curl http://localhost:8080/api/role/1
-* curl -H "Content-Type: application/json" -X POST -d '{"extid":"42","charid":"role_42","name":"Role 42"}' http://localhost:8080/api/role
-* curl -H "Content-Type: application/json" -X PUT -d '{"name":"Role number one"}' http://localhost:8080/api/role/1
-* curl -X DELETE http://localhost:8080/api/role/3
+* All Roles:      curl http://localhost:8080/api/role
+* Specific Role:  curl http://localhost:8080/api/role/1
+* Add new Role:   curl -X POST -H "Content-Type: application/json" -d '{"extid":"42","charid":"role_42","name":"Role 42"}' http://localhost:8080/api/role
+* Update Role:    curl -X PUT  -H "Content-Type: application/json" -d '{"name":"Role number one"}' http://localhost:8080/api/role/1
+* Delete Role:    curl -X DELETE http://localhost:8080/api/role/3
+* Search Roles:   curl http://localhost:8080/api/role/search?q=12
