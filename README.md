@@ -13,3 +13,5 @@
 * Update Role:    curl -X PUT  -H "Content-Type: application/json" -d '{"name":"Role number one"}' http://localhost:8080/api/role/1
 * Delete Role:    curl -X DELETE http://localhost:8080/api/role/3
 * Search Roles:   curl http://localhost:8080/api/role/search?q=12
+* Acode:          same like role (no search yet)
+* Role - Acode:   curl -H "Content-Type: application/json" -X POST -d '{"role_id":"100", "acode_id":"200"}' http://localhost:8080/api/role_acode

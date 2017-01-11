@@ -47,10 +47,10 @@ def get_roles():
 def search_roles():
     if not request.args or len(request.args) == 0:
         return ''
-    name_query = '%'+request.args.get('q','')+'%';
+    name_query = '%'+request.args.get('q','')+'%'
 
     db.row_factory = dict_factory
-    cur = db.execute('select * from role  \
+    cur = db.execute('select * from role    \
         where name   like :name_query       \
            or charid like :name_query       \
            or extid  like :name_query       \
@@ -59,6 +59,7 @@ def search_roles():
      )
     roles = cur.fetchall()
     return jsonify(roles)
+
 
 @app.route('/api/role/<int:role_id>', methods=['GET'])
 def get_role(role_id):
@@ -90,14 +91,14 @@ def create_role():
 
 @app.route('/api/role/<int:role_id>', methods=['PUT'])
 def update_role(role_id):
-    # if not request.json:
-    #     abort(400)
-    # if 'extid' in request.json and type(request.json['extid']) != int:
-    #     abort(400)
-    # if 'charid' in request.json and type(request.json['charid']) != str:
-    #     abort(400)
-    # if 'name' in request.json and type(request.json['name']) != str:
-    #     abort(401) # python 2.7 vs. python 3.4 ?
+    if not request.json:
+        abort(400)
+    if 'extid' in request.json and type(request.json['extid']) != int:
+        abort(400)
+    if 'charid' in request.json and type(request.json['charid']) != str:
+        abort(400)
+    if 'name' in request.json and type(request.json['name']) != str:
+        abort(400)
     db.row_factory = dict_factory
     cur = db.execute('select * from role where id = :role_id', {'role_id': role_id})
     role = cur.fetchone()
@@ -165,14 +166,14 @@ def create_acode():
 
 @app.route('/api/acode/<int:acode_id>', methods=['PUT'])
 def update_acode(acode_id):
-    # if not request.json:
-    #     abort(400)
-    # if 'extid' in request.json and type(request.json['extid']) != int:
-    #     abort(400)
-    # if 'charid' in request.json and type(request.json['charid']) != str:
-    #     abort(400)
-    # if 'name' in request.json and type(request.json['name']) != str:
-    #     abort(400)
+    if not request.json:
+        abort(400)
+    if 'extid' in request.json and type(request.json['extid']) != int:
+        abort(400)
+    if 'charid' in request.json and type(request.json['charid']) != str:
+        abort(400)
+    if 'name' in request.json and type(request.json['name']) != str:
+        abort(400)
     db.row_factory = dict_factory
     cur = db.execute('select * from acode where id = :acode_id', {'acode_id': acode_id})
     acode = cur.fetchone()
@@ -201,4 +202,25 @@ def delete_acode(acode_id):
 #  ROLE - ACCESS CODE RELATION
 # -------------------------------------------------------------------------------------------------
 
-# ...
+
+@app.route('/api/role_acode', methods=['GET'])
+def get_role_acode():
+    db.row_factory = dict_factory
+    cur = db.execute('select * from role_acode')
+    roles = cur.fetchall()
+    return jsonify(roles)
+
+
+@app.route('/api/role_acode', methods=['POST'])
+def create_role_acode():
+    if not request.json or not 'role_id' in request.json or not 'acode_id' in request.json:
+        abort(400)
+    cur = db.cursor()
+    cur.execute('insert into role_acode (role_id, acode_id) values (?, ?)',
+                 [request.json['role_id'], request.json['acode_id']])
+    db.commit()
+    role_acode = {
+        'role_id': request.json['role_id'],
+        'acode_id': request.json['acode_id']
+    }
+    return jsonify(role_acode), 201
