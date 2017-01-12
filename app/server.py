@@ -209,8 +209,18 @@ def delete_acode(acode_id):
 
 @app.route('/api/role_acode', methods=['GET'])
 def get_role_acode():
+    role_id = request.args.get('role_id')
+    acode_id = request.args.get('acode_id')
     db.row_factory = dict_factory
-    cur = db.execute('select * from role_acode')
+    if role_id and acode_id:
+        cur = db.execute('select * from role_acode where role_id = :role_id and acode_id = :acode_id',
+                         {'role_id': role_id, 'acode_id': acode_id})
+    elif role_id:
+        cur = db.execute('select * from role_acode where role_id = :role_id', {'role_id': role_id})
+    elif acode_id:
+        cur = db.execute('select * from role_acode where acode_id = :acode_id', {'acode_id': acode_id})
+    else:
+        cur = db.execute('select * from role_acode')
     roles = cur.fetchall()
     return jsonify(roles)
 
