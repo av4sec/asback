@@ -15,3 +15,4 @@
 * Search Roles:   curl http://localhost:8080/api/role/search?q=12
 * Acode:          same like role (no search yet)
 * Role - Acode:   curl -H "Content-Type: application/json" -X POST -d '{"role_id":"100", "acode_id":"200"}' http://localhost:8080/api/role_acode
+                  curl -H "Content-Type: application/json" -X DELETE -d '{"role_id":"3", "acode_id":"4"}' http://localhost:8080/api/role_acode

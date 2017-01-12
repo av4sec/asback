@@ -115,10 +115,12 @@ def update_role(role_id):
 
 @app.route('/api/role/<int:role_id>', methods=['DELETE'])
 def delete_role(role_id):
+    cur = db.execute('delete from role_acode where role_id = :role_id', {'role_id': role_id})
+    role_acode = cur.rowcount
     cur = db.execute('delete from role where id = :role_id', {'role_id': role_id})
     db.commit()
     if cur.rowcount == 1:
-        return jsonify({'result': True})
+        return jsonify({'result': True, 'role_acode': role_acode})
     else:
         abort(404)
 
@@ -190,10 +192,12 @@ def update_acode(acode_id):
 
 @app.route('/api/acode/<int:acode_id>', methods=['DELETE'])
 def delete_acode(acode_id):
+    cur = db.execute('delete from role_acode where acode_id = :acode_id', {'acode_id': acode_id})
+    role_acode = cur.rowcount
     cur = db.execute('delete from acode where id = :acode_id', {'acode_id': acode_id})
     db.commit()
     if cur.rowcount == 1:
-        return jsonify({'result': True})
+        return jsonify({'result': True, 'role_acode': role_acode})
     else:
         abort(404)
 
@@ -224,3 +228,16 @@ def create_role_acode():
         'acode_id': request.json['acode_id']
     }
     return jsonify(role_acode), 201
+
+
+@app.route('/api/role_acode', methods=['DELETE'])
+def delete_role_acode():
+    if not request.json or not 'role_id' in request.json or not 'acode_id' in request.json:
+        abort(400)
+    cur = db.execute('delete from role_acode where role_id = :role_id and acode_id = :acode_id',
+                     {'role_id': request.json['role_id'], 'acode_id': request.json['acode_id']})
+    db.commit()
+    if cur.rowcount > 0:
+        return jsonify({'result': cur.rowcount})
+    else:
+        abort(404)
