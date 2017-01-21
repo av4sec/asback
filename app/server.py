@@ -207,7 +207,7 @@ def delete_acode(acode_id):
 # -------------------------------------------------------------------------------------------------
 
 
-@app.route('/api/role_acode', methods=['GET'])
+@app.route('/api/role-acode', methods=['GET'])
 def get_role_acode():
     role_id = request.args.get('role_id')
     acode_id = request.args.get('acode_id')
@@ -225,7 +225,7 @@ def get_role_acode():
     return jsonify(roles)
 
 
-@app.route('/api/role_acode', methods=['POST'])
+@app.route('/api/role-acode', methods=['POST'])
 def create_role_acode():
     if not request.json or not 'role_id' in request.json or not 'acode_id' in request.json:
         abort(400)
@@ -240,7 +240,7 @@ def create_role_acode():
     return jsonify(role_acode), 201
 
 
-@app.route('/api/role_acode', methods=['DELETE'])
+@app.route('/api/role-acode', methods=['DELETE'])
 def delete_role_acode():
     if not request.json or not 'role_id' in request.json or not 'acode_id' in request.json:
         abort(400)
