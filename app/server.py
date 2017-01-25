@@ -251,3 +251,19 @@ def delete_role_acode():
         return jsonify({'result': cur.rowcount})
     else:
         abort(404)
+
+
+# -------------------------------------------------------------------------------------------------
+#  DATA DUMP & LOAD
+# -------------------------------------------------------------------------------------------------
+
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    db.row_factory = dict_factory
+    data = dict()
+    data["role"] = db.execute("select * from role order by id").fetchall()
+    data["acode"] = db.execute("select * from acode order by id").fetchall()
+    data["role_acode"] = db.execute("select * from role_acode order by role_id, acode_id").fetchall()
+    return jsonify(data)
+
