@@ -1,0 +1,40 @@
+{
+  "role_acode": [
+    {
+      "acode_id": 100,
+      "role_id": 100
+    },
+    {
+      "acode_id": 101,
+      "role_id": 101
+    }
+  ],
+  "role": [
+    {
+      "id": 100,
+      "extid": 100,
+      "charid": "role_100",
+      "name": "Role 100"
+    },
+    {
+      "id": 101,
+      "extid": 101,
+      "charid": "role_101",
+      "name": "Role 101"
+    }
+  ],
+  "acode": [
+    {
+      "id": 100,
+      "extid": 100,
+      "charid": "acode_100",
+      "name": "Access Code 100"
+    },
+    {
+      "id": 101,
+      "extid": 101,
+      "charid": "acode_101",
+      "name": "Access Code 101"
+    }
+  ]
+}

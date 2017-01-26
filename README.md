@@ -18,3 +18,6 @@
  * `curl -H "Content-Type: application/json" -X POST -d '{"role_id":"100", "acode_id":"200"}' http://localhost:8080/api/role-acode`
  * `curl -H "Content-Type: application/json" -X DELETE -d '{"role_id":"3", "acode_id":"4"}' http://localhost:8080/api/role-acode`
  * `curl "http://localhost:8080/api/role-acode?role_id=2&acode_id=2"`
+* Data dump (JSON):
+  * `curl http://localhost:8080/api/data`
+  * `curl -X PUT -H "Content-Type: application/json" -d @sample.json http://localhost:8080/api/data`

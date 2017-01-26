@@ -267,3 +267,24 @@ def get_data():
     data["role_acode"] = db.execute("select * from role_acode order by role_id, acode_id").fetchall()
     return jsonify(data)
 
+
+@app.route('/api/data', methods=['PUT'])
+def put_data():
+    if not request.json:
+        abort(400)
+    cur = db.cursor()
+    cur.execute('delete from role')
+    for role in request.json["role"]:
+        cur.execute('insert into role (id, extid, charid, name) values (?, ?, ?, ?)',
+                    [role['extid'], role['extid'], role['charid'], role['name']])
+    cur.execute('delete from acode')
+    for acode in request.json["acode"]:
+        cur.execute('insert into acode (id, extid, charid, name) values (?, ?, ?, ?)',
+                    [acode['id'], acode['extid'], acode['charid'], acode['name']])
+    cur.execute('delete from role_acode')
+    for role_acode in request.json["role_acode"]:
+        cur.execute('insert into role_acode (role_id, acode_id) values (?, ?)',
+                    [role_acode['role_id'], role_acode['acode_id']])
+    db.commit()
+    return jsonify({}), 201
+
