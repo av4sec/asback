@@ -276,7 +276,7 @@ def put_data():
     cur.execute('delete from role')
     for role in request.json["role"]:
         cur.execute('insert into role (id, extid, charid, name) values (?, ?, ?, ?)',
-                    [role['extid'], role['extid'], role['charid'], role['name']])
+                    [role['id'], role['extid'], role['charid'], role['name']])
     cur.execute('delete from acode')
     for acode in request.json["acode"]:
         cur.execute('insert into acode (id, extid, charid, name) values (?, ?, ?, ?)',
