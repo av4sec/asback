@@ -37,8 +37,13 @@ def not_found(error):
 
 @app.route('/api/role', methods=['GET'])
 def get_roles():
+    id = request.args.getlist('id')
     db.row_factory = dict_factory
-    cur = db.execute('select * from role order by id')
+    if len(id) > 0:
+        sql = 'select * from role where id in ({0}) order by id'.format(','.join('?' for _ in id))
+        cur = db.execute(sql, id)
+    else:
+        cur = db.execute('select * from role order by id')
     roles = cur.fetchall()
     return jsonify(roles)
 
@@ -132,8 +137,13 @@ def delete_role(role_id):
 
 @app.route('/api/acode', methods=['GET'])
 def get_acodes():
+    id = request.args.getlist('id')
     db.row_factory = dict_factory
-    cur = db.execute('select * from acode order by id')
+    if len(id) > 0:
+        sql = 'select * from acode where id in ({0}) order by id'.format(','.join('?' for _ in id))
+        cur = db.execute(sql, id)
+    else:
+        cur = db.execute('select * from acode order by id')
     acodes = cur.fetchall()
     return jsonify(acodes)
 
@@ -209,16 +219,19 @@ def delete_acode(acode_id):
 
 @app.route('/api/role-acode', methods=['GET'])
 def get_role_acode():
-    role_id = request.args.get('role_id')
-    acode_id = request.args.get('acode_id')
+    role_id = request.args.getlist('role_id')
+    acode_id = request.args.getlist('acode_id')
     db.row_factory = dict_factory
-    if role_id and acode_id:
-        cur = db.execute('select * from role_acode where role_id = :role_id and acode_id = :acode_id',
-                         {'role_id': role_id, 'acode_id': acode_id})
-    elif role_id:
-        cur = db.execute('select * from role_acode where role_id = :role_id', {'role_id': role_id})
-    elif acode_id:
-        cur = db.execute('select * from role_acode where acode_id = :acode_id', {'acode_id': acode_id})
+    if len(role_id) > 0 and len(acode_id) > 0:
+        sql = 'select * from role_acode where role_id in ({0}) and acode_id in ({1})'\
+            .format(','.join('?' for _ in role_id), ','.join('?' for _ in acode_id))
+        cur = db.execute(sql, role_id + acode_id)
+    elif len(role_id) > 0:
+        sql = 'select * from role_acode where role_id in ({0})'.format(','.join('?' for _ in role_id))
+        cur = db.execute(sql, role_id)
+    elif len(acode_id) > 0:
+        sql = 'select * from role_acode where acode_id in ({0})'.format(','.join('?' for _ in acode_id))
+        cur = db.execute(sql, acode_id)
     else:
         cur = db.execute('select * from role_acode')
     roles = cur.fetchall()
