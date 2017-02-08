@@ -148,6 +148,24 @@ def get_acodes():
     return jsonify(acodes)
 
 
+@app.route('/api/acode/search', methods=['GET'])
+def search_acodes():
+    if not request.args or len(request.args) == 0:
+        return ''
+    name_query = '%'+request.args.get('q','')+'%'
+
+    db.row_factory = dict_factory
+    cur = db.execute('select * from acode   \
+        where name   like :name_query       \
+           or charid like :name_query       \
+           or extid  like :name_query       \
+        order by id',
+        {'name_query': name_query}
+     )
+    acodes = cur.fetchall()
+    return jsonify(acodes)
+
+
 @app.route('/api/acode/<int:acode_id>', methods=['GET'])
 def get_acode(acode_id):
     db.row_factory = dict_factory
