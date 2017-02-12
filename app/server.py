@@ -296,6 +296,13 @@ def get_data():
     data["role"] = db.execute("select * from role order by id").fetchall()
     data["acode"] = db.execute("select * from acode order by id").fetchall()
     data["role_acode"] = db.execute("select * from role_acode order by role_id, acode_id").fetchall()
+    data["entity"] = db.execute("select * from entity order by id").fetchall()
+    data["entity_appl"] = db.execute("select * from entity_appl order by entity_id").fetchall()
+    data["entity_ctx"] = db.execute("select * from entity_ctx order by entity_id").fetchall()
+    data["entity_mtyp"] = db.execute("select * from entity_mtyp order by entity_id").fetchall()
+    data["entity_task"] = db.execute("select * from entity_task order by entity_id").fetchall()
+    data["entity_wfc"] = db.execute("select * from entity_wfc order by entity_id").fetchall()
+    data["wfc_status"] = db.execute("select * from wfc_status order by meta_typ_id, status_id").fetchall()
     return jsonify(data)
 
 
@@ -304,18 +311,92 @@ def put_data():
     if not request.json:
         abort(400)
     cur = db.cursor()
+    # role
     cur.execute('delete from role')
     for role in request.json["role"]:
         cur.execute('insert into role (id, extid, charid, name) values (?, ?, ?, ?)',
                     [role['id'], role['extid'], role['charid'], role['name']])
+    # access code
     cur.execute('delete from acode')
     for acode in request.json["acode"]:
         cur.execute('insert into acode (id, extid, charid, name) values (?, ?, ?, ?)',
                     [acode['id'], acode['extid'], acode['charid'], acode['name']])
+    # role - access code
     cur.execute('delete from role_acode')
     for role_acode in request.json["role_acode"]:
         cur.execute('insert into role_acode (role_id, acode_id) values (?, ?)',
                     [role_acode['role_id'], role_acode['acode_id']])
+    # entity
+    cur.execute('delete from entity')
+    for entity in request.json["entity"]:
+        cur.execute('insert into entity (id, type, extid, charid, name) values (?, ?, ?, ?, ?)',
+                    [entity['id'], entity['type'], entity['extid'], entity['charid'], entity['name']])
+    # entity: application
+    cur.execute('delete from entity_appl')
+    for entity in request.json["entity_appl"]:
+        cur.execute('insert into entity_appl (entity_id) values (?)',
+                    [entity['entity_id']])
+    # entity: context action
+    cur.execute('delete from entity_ctx')
+    for entity in request.json["entity_ctx"]:
+        cur.execute('insert into entity_ctx (entity_id, parent_id, is_parent, group_id, global_order_by) values (?, ?, ?, ?, ?)',
+                    [entity['entity_id'], entity['parent_id'], entity['is_parent'], entity['group_id'], entity['global_order_by']])
+    # entity: meta type
+    cur.execute('delete from entity_mtyp')
+    for entity in request.json["entity_mtyp"]:
+        cur.execute('insert into entity_mtyp (entity_id, grp) values (?, ?)',
+                    [entity['entity_id'], entity['grp']])
+    # entity: task
+    cur.execute('delete from entity_task')
+    for entity in request.json["entity_task"]:
+        cur.execute('insert into entity_task (entity_id, type, meta_out_id) values (?, ?, ?)',
+                    [entity['entity_id'], entity['type'], entity['meta_out_id']])
+    # entity: workflow
+    cur.execute('delete from entity_wfc')
+    for entity in request.json["entity_wfc"]:
+        cur.execute('insert into entity_wfc (entity_id, meta_typ_id, wfc_action_id, status_id) values (?, ?, ?, ?)',
+                    [entity['entity_id'], entity['meta_typ_id'], entity['wfc_action_id'], entity['status_id']])
+    # workflow status
+    cur.execute('delete from wfc_status')
+    for entity in request.json["wfc_status"]:
+        cur.execute('insert into wfc_status (meta_typ_id, status_id, charid, name) values (?, ?, ?, ?)',
+                    [entity['meta_typ_id'], entity['status_id'], entity['charid'], entity['name']])
     db.commit()
     return jsonify({}), 201
 
+
+# -------------------------------------------------------------------------------------------------
+#  ENTITY
+# -------------------------------------------------------------------------------------------------
+
+
+@app.route('/api/entity', methods=['GET'])
+def get_entities():
+    id = request.args.getlist('id')
+    db.row_factory = dict_factory
+    if len(id) > 0:
+        sql = 'select id, type from entity where id in ({0}) order by id'.format(','.join('?' for _ in id))
+        cur = db.execute(sql, id)
+    else:
+        cur = db.execute('select id, type from entity order by id')
+    entities = cur.fetchall()
+    res = []
+    for sql in ["select * from entity_{0}_v where id = {1}".format(entity['type'], entity['id']) for entity in
+                entities]:
+        cur = db.execute(sql)
+        res.append(cur.fetchone())
+    return jsonify(res)
+
+
+@app.route('/api/entity/<int:id>', methods=['GET'])
+def get_entity(id):
+    db.row_factory = dict_factory
+    cur = db.execute('select id, type from entity where id = :id', {'id': id})
+    entity = cur.fetchone()
+    if entity is None:
+        abort(404)
+    else:
+        sql = "select * from entity_{0}_v where id = {1}".format(entity['type'], entity['id'])
+        cur = db.execute(sql)
+        entity = cur.fetchone()
+        return jsonify(entity)
