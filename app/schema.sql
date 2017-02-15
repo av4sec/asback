@@ -316,3 +316,18 @@ create view entity_wfc_v as
     from entity e
     left join wfc_status ws on ws.meta_typ_id = w.meta_typ_id and ws.status_id = w.status_id
     join entity_wfc w on e.id = w.entity_id and e.type = 'WFC';
+
+-- ACCESS CODE - ENTITY -----------------------------------
+drop table if exists acode_entity;
+
+create table acode_entity (
+  acode_id integer not null,
+  entity_id integer not null
+);
+
+insert into acode_entity (acode_id, entity_id) values (2, 1);
+insert into acode_entity (acode_id, entity_id) values (2, 2);
+insert into acode_entity (acode_id, entity_id) values (2, 3);
+insert into acode_entity (acode_id, entity_id) values (3, 2);
+insert into acode_entity (acode_id, entity_id) values (3, 3);
+insert into acode_entity (acode_id, entity_id) values (3, 4);

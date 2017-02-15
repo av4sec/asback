@@ -303,6 +303,7 @@ def get_data():
     data["entity_task"] = db.execute("select * from entity_task order by entity_id").fetchall()
     data["entity_wfc"] = db.execute("select * from entity_wfc order by entity_id").fetchall()
     data["wfc_status"] = db.execute("select * from wfc_status order by meta_typ_id, status_id").fetchall()
+    data["acode_entity"] = db.execute("select * from acode_entity order by acode_id, entity_id").fetchall()
     return jsonify(data)
 
 
@@ -361,6 +362,11 @@ def put_data():
     for entity in request.json["wfc_status"]:
         cur.execute('insert into wfc_status (meta_typ_id, status_id, charid, name) values (?, ?, ?, ?)',
                     [entity['meta_typ_id'], entity['status_id'], entity['charid'], entity['name']])
+    # access code - entity
+    cur.execute('delete from acode_entity')
+    for acode_entity in request.json["acode_entity"]:
+        cur.execute('insert into acode_entity (acode_id, entity_id) values (?, ?)',
+                    [acode_entity['acode_id'], acode_entity['entity_id']])
     db.commit()
     return jsonify({}), 201
 
@@ -400,3 +406,57 @@ def get_entity(id):
         cur = db.execute(sql)
         entity = cur.fetchone()
         return jsonify(entity)
+
+
+# -------------------------------------------------------------------------------------------------
+#  ACCESS CODE - ENTITY RELATION
+# -------------------------------------------------------------------------------------------------
+
+
+@app.route('/api/acode-entity', methods=['GET'])
+def get_acode_entity():
+    acode_id = request.args.getlist('acode_id')
+    entity_id = request.args.getlist('entity_id')
+    db.row_factory = dict_factory
+    if len(acode_id) > 0 and len(entity_id) > 0:
+        sql = 'select * from acode_entity where acode_id in ({0}) and entity_id in ({1})'\
+            .format(','.join('?' for _ in acode_id), ','.join('?' for _ in entity_id))
+        cur = db.execute(sql, acode_id + entity_id)
+    elif len(acode_id) > 0:
+        sql = 'select * from acode_entity where acode_id in ({0})'.format(','.join('?' for _ in acode_id))
+        cur = db.execute(sql, acode_id)
+    elif len(entity_id) > 0:
+        sql = 'select * from acode_entity where entity_id in ({0})'.format(','.join('?' for _ in entity_id))
+        cur = db.execute(sql, entity_id)
+    else:
+        cur = db.execute('select * from acode_entity')
+    acode_entity = cur.fetchall()
+    return jsonify(acode_entity)
+
+
+@app.route('/api/acode-entity', methods=['POST'])
+def create_acode_entity():
+    if not request.json or not 'acode_id' in request.json or not 'entity_id' in request.json:
+        abort(400)
+    cur = db.cursor()
+    cur.execute('insert into acode_entity (acode_id, entity_id) values (?, ?)',
+                 [request.json['acode_id'], request.json['entity_id']])
+    db.commit()
+    acode_entity = {
+        'acode_id': request.json['acode_id'],
+        'entity_id': request.json['entity_id']
+    }
+    return jsonify(acode_entity), 201
+
+
+@app.route('/api/acode-entity', methods=['DELETE'])
+def delete_acode_entity():
+    if not request.json or not 'acode_id' in request.json or not 'entity_id' in request.json:
+        abort(400)
+    cur = db.execute('delete from acode_entity where acode_id = :acode_id and entity_id = :entity_id',
+                     {'acode_id': request.json['acode_id'], 'entity_id': request.json['entity_id']})
+    db.commit()
+    if cur.rowcount > 0:
+        return jsonify({'result': cur.rowcount})
+    else:
+        abort(404)
