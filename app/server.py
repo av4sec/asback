@@ -304,6 +304,7 @@ def get_data():
     data["entity_wfc"] = db.execute("select * from entity_wfc order by entity_id").fetchall()
     data["wfc_status"] = db.execute("select * from wfc_status order by meta_typ_id, status_id").fetchall()
     data["acode_entity"] = db.execute("select * from acode_entity order by acode_id, entity_id").fetchall()
+    data["role_role"] = db.execute("select * from role_role order by role_1_id, role_2_id").fetchall()
     return jsonify(data)
 
 
@@ -367,6 +368,11 @@ def put_data():
     for acode_entity in request.json["acode_entity"]:
         cur.execute('insert into acode_entity (acode_id, entity_id) values (?, ?)',
                     [acode_entity['acode_id'], acode_entity['entity_id']])
+    # role - role
+    cur.execute('delete from role_role')
+    for role_role in request.json["role_role"]:
+        cur.execute('insert into role_role (role_1_id, role_2_id) values (?, ?)',
+                    [role_role['role_1_id'], role_role['role_2_id']])
     db.commit()
     return jsonify({}), 201
 
@@ -455,6 +461,60 @@ def delete_acode_entity():
         abort(400)
     cur = db.execute('delete from acode_entity where acode_id = :acode_id and entity_id = :entity_id',
                      {'acode_id': request.json['acode_id'], 'entity_id': request.json['entity_id']})
+    db.commit()
+    if cur.rowcount > 0:
+        return jsonify({'result': cur.rowcount})
+    else:
+        abort(404)
+
+
+# -------------------------------------------------------------------------------------------------
+#  ROLE - ROLE RELATION
+# -------------------------------------------------------------------------------------------------
+
+
+@app.route('/api/role-role', methods=['GET'])
+def get_role_role():
+    role_1_id = request.args.getlist('role_1_id')
+    role_2_id = request.args.getlist('role_2_id')
+    db.row_factory = dict_factory
+    if len(role_1_id) > 0 and len(role_2_id) > 0:
+        sql = 'select * from role_role where role_1_id in ({0}) and role_1_id in ({1})'\
+            .format(','.join('?' for _ in role_1_id), ','.join('?' for _ in role_2_id))
+        cur = db.execute(sql, role_1_id + role_2_id)
+    elif len(role_1_id) > 0:
+        sql = 'select * from role_role where role_1_id in ({0})'.format(','.join('?' for _ in role_1_id))
+        cur = db.execute(sql, role_1_id)
+    elif len(role_2_id) > 0:
+        sql = 'select * from role_role where role_2_id in ({0})'.format(','.join('?' for _ in role_2_id))
+        cur = db.execute(sql, role_2_id)
+    else:
+        cur = db.execute('select * from role_role')
+    roles = cur.fetchall()
+    return jsonify(roles)
+
+
+@app.route('/api/role-role', methods=['POST'])
+def create_role_role():
+    if not request.json or not 'role_1_id' in request.json or not 'role_2_id' in request.json:
+        abort(400)
+    cur = db.cursor()
+    cur.execute('insert into role_role (role_1_id, role_2_id) values (?, ?)',
+                 [request.json['role_1_id'], request.json['role_2_id']])
+    db.commit()
+    role_role = {
+        'role_1_id': request.json['role_1_id'],
+        'role_2_id': request.json['role_2_id']
+    }
+    return jsonify(role_role), 201
+
+
+@app.route('/api/role-role', methods=['DELETE'])
+def delete_role_role():
+    if not request.json or not 'role_1_id' in request.json or not 'role_2_id' in request.json:
+        abort(400)
+    cur = db.execute('delete from role_role where role_1_id = :role_1_id and role_2_id = :role_2_id',
+                     {'role_1_id': request.json['role_1_id'], 'role_2_id': request.json['role_2_id']})
     db.commit()
     if cur.rowcount > 0:
         return jsonify({'result': cur.rowcount})

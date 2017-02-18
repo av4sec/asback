@@ -331,3 +331,13 @@ insert into acode_entity (acode_id, entity_id) values (2, 3);
 insert into acode_entity (acode_id, entity_id) values (3, 2);
 insert into acode_entity (acode_id, entity_id) values (3, 3);
 insert into acode_entity (acode_id, entity_id) values (3, 4);
+
+-- ROLE - ROLE CODE ---------------------------------------
+drop table if exists role_role;
+
+create table role_role (
+  role_1_id integer not null,
+  role_2_id integer not null
+);
+
+insert into role_role (role_1_id, role_2_id) values (2, 1);
