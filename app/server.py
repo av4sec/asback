@@ -305,6 +305,9 @@ def get_data():
     data["wfc_status"] = db.execute("select * from wfc_status order by meta_typ_id, status_id").fetchall()
     data["acode_entity"] = db.execute("select * from acode_entity order by acode_id, entity_id").fetchall()
     data["role_role"] = db.execute("select * from role_role order by role_1_id, role_2_id").fetchall()
+    data["user"] = db.execute("select * from user order by id").fetchall()
+    data["user_role"] = db.execute("select * from user_role order by user_id, role_id").fetchall()
+    data["user_acode"] = db.execute("select * from user_acode order by user_id, acode_id").fetchall()
     return jsonify(data)
 
 
@@ -373,6 +376,21 @@ def put_data():
     for role_role in request.json["role_role"]:
         cur.execute('insert into role_role (role_1_id, role_2_id) values (?, ?)',
                     [role_role['role_1_id'], role_role['role_2_id']])
+    # user
+    cur.execute('delete from user')
+    for user in request.json["user"]:
+        cur.execute('insert into user (id, extid, username) values (?, ?, ?)',
+                    [user['id'], user['extid'], user['username']])
+    # user - role
+    cur.execute('delete from user_role')
+    for user_role in request.json["user_role"]:
+        cur.execute('insert into user_role (user_id, role_id) values (?, ?)',
+                    [user_role['user_id'], user_role['role_id']])
+    # user - access code
+    cur.execute('delete from user_acode')
+    for user_acode in request.json["user_acode"]:
+        cur.execute('insert into user_acode (user_id, acode_id) values (?, ?)',
+                    [user_acode['user_id'], user_acode['acode_id']])
     db.commit()
     return jsonify({}), 201
 

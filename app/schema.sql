@@ -341,3 +341,49 @@ create table role_role (
 );
 
 insert into role_role (role_1_id, role_2_id) values (2, 1);
+
+-- USER ---------------------------------------------------
+drop table if exists user;
+
+create table user (
+  id integer primary key autoincrement,
+  extid integer not null,
+  username text null
+);
+
+insert into user (extid, username)
+values (10, 'User 10');
+
+insert into user (extid, username)
+values (11, 'User 11');
+
+insert into user (extid, username)
+values (12, 'User 12');
+
+-- USER - ROLE --------------------------------------------
+drop table if exists user_role;
+
+create table user_role (
+  user_id integer not null,
+  role_id integer not null
+);
+
+insert into user_role (user_id, role_id) values (1, 1);
+insert into user_role (user_id, role_id) values (1, 2);
+insert into user_role (user_id, role_id) values (2, 1);
+insert into user_role (user_id, role_id) values (2, 3);
+insert into user_role (user_id, role_id) values (3, 3);
+
+-- USER - ACCESS CODE  ------------------------------------
+drop table if exists user_acode;
+
+create table user_acode (
+  user_id integer not null,
+  acode_id integer not null
+);
+
+insert into user_acode (user_id, acode_id) values (1, 1);
+insert into user_acode (user_id, acode_id) values (1, 2);
+insert into user_acode (user_id, acode_id) values (2, 1);
+insert into user_acode (user_id, acode_id) values (2, 3);
+insert into user_acode (user_id, acode_id) values (3, 3);
